@@ -1,1 +1,25 @@
- 
+name: Emulator Trigger
+
+on:
+   push:
+    branches:
+      - main  # Define the branch you want to trigger on
+jobs:
+  run-mobile-tests:
+    runs-on: macos-latest  # Define the operating system you want to run the job on
+
+    steps:
+    - name: Pull the project in to the runner
+      uses: actions/checkout@v3
+
+    - name: Setup appium
+      run: |
+        npm install -g appium
+        appium -v
+        appium &>/dev/null &
+
+        - name: Run appium android tests
+          uses: reactivecircus/android-emulator-runner@v2
+          with:
+          api-level: 31
+          script: mvn clean test -Pandroid

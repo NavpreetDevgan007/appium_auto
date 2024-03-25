@@ -27,11 +27,17 @@ jobs:
           wget -q -O sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
           unzip -q sdk-tools.zip -d $ANDROID_SDK_ROOT
           echo y | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-31" "emulator"
+          export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH  # Add platform-tools to PATH
 
       - name: Start emulator
         run: |
           echo no | $ANDROID_SDK_ROOT/cmdline-tools/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;x86"
-          $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-audio -no-boot-anim -no-window -gpu swiftshader_indirect
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-audio -no-boot-anim -no-window -gpu swiftshader_indirect &
+
+      - name: Wait for emulator to start
+        run: adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done; input keyevent 82'
+
+      - name: Terminate emulator
+        run: adb emu kill
 
       # Add additional steps as needed, such as running tests on the emulator
-

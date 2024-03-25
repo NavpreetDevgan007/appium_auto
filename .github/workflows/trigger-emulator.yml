@@ -13,14 +13,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2  # This action checks out your repository's code
 
-      - name: Set up JDK  # You may adjust this according to your project requirements
-        uses: actions/setup-java@v2
+      - name: Set up JDK and Android SDK
+        uses: reactivecircus/android-emulator-runner@v2
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          api-level: '31'  # Pixel 7 corresponds to Android 12 (API level 31)
+          script: 'system-images;android-31;google_apis;x86'  # Choose appropriate system image
+          architecture: 'x86'
+          profile: 'pixel'  # Use pixel profile for Pixel devices
+          emulator-options: '-no-snapshot'  # Customize emulator options as needed
+          licenses: 'android-sdk-license-5be876d5'
+      
+      - name: Start emulator
+        run: emulator -avd pixel -no-snapshot -no-audio -no-boot-anim -no-window -gpu swiftshader_indirect
 
-      - name: Run emulator
-        run: |
-          # Add commands here to run your emulator
-          # Example: emulator <options>
+      # Add additional steps as needed, such as running tests on the emulator
 

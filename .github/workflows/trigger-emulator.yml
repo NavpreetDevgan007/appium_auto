@@ -17,13 +17,21 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: '31'  # Pixel 7 corresponds to Android 12 (API level 31)
-          script: 'system-images;android-31;google_apis;x86'  # Choose appropriate system image
-          architecture: 'x86'
           profile: 'pixel'  # Use pixel profile for Pixel devices
           emulator-options: '-no-snapshot'  # Customize emulator options as needed
-          licenses: 'android-sdk-license-5be876d5'
-      
+
+      - name: Initialize Android SDK
+        run: |
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          mkdir -p $ANDROID_SDK_ROOT
+          wget -q -O sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
+          unzip -q sdk-tools.zip -d $ANDROID_SDK_ROOT
+          echo y | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-31" "emulator"
+
       - name: Start emulator
-        run: emulator -avd pixel -no-snapshot -no-audio -no-boot-anim -no-window -gpu swiftshader_indirect
+        run: |
+          echo no | $ANDROID_SDK_ROOT/cmdline-tools/bin/avdmanager create avd -n test -k "system-images;android-31;google_apis;x86"
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test -no-snapshot -no-audio -no-boot-anim -no-window -gpu swiftshader_indirect
 
       # Add additional steps as needed, such as running tests on the emulator
+
